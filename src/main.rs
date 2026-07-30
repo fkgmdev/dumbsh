@@ -40,28 +40,39 @@ fn exec_command(command: &str, shell: &mut Shell) {
             }
         }
         "ls" => {
-            if arguments.len() != 1 {
-                println!("takes no args lil bro");
-            } else {
-                match read_dir(&shell.cwd) {
-                    Ok(entries) => {
-                        let mut output_string: Vec<String> = Vec::new();
-                        for item in entries {
-                            let entry = item.unwrap();
-                            if entry.file_type().unwrap().is_dir() {
-                                output_string.push(format!(
-                                    "Directory: {}",
-                                    entry.file_name().to_string_lossy()
-                                ));
-                            } else {
-                                output_string
-                                    .push(format!("File: {}", entry.file_name().to_string_lossy()));
+            if arguments.len() > 2 {
+                println!("Usage: ls <path> (optional)");
+            }
+            else {
+                let target_dir = if arguments.len() == 2 {
+                    arguments[1]
+                }
+                else {
+                    "."
+                };
+                if arguments.len() != 1 {
+                    println!("takes no args lil bro");
+                } else {
+                    match read_dir(&shell.cwd) {
+                        Ok(entries) => {
+                            let mut output_string: Vec<String> = Vec::new();
+                            for item in entries {
+                                let entry = item.unwrap();
+                                if entry.file_type().unwrap().is_dir() {
+                                    output_string.push(format!(
+                                        "Directory: {}",
+                                        entry.file_name().to_string_lossy()
+                                    ));
+                                } else {
+                                    output_string
+                                        .push(format!("File: {}", entry.file_name().to_string_lossy()));
+                                }
                             }
+                            let display_string = output_string.join("\n");
+                            println!("{}", display_string);
                         }
-                        let display_string = output_string.join("\n");
-                        println!("{}", display_string);
+                        Err(e) => println!("error: {e}"),
                     }
-                    Err(e) => println!("error: {e}"),
                 }
             }
         }
